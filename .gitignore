@@ -1,0 +1,9 @@
+/.apt_generated_tests
+/.apt_generated
+/.project
+/.settings
+/.classpath
+/.factorypath
+/target
+/.git
+.DS_Store

@@ -1,0 +1,88 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: was-pipeline
+  namespace: was
+spec:
+  workspaces:
+    - name: shared-workspace
+    - name: maven-settings
+
+  params:
+    - default: was-modresorts
+      description: The name of the application
+      name: APP_NAME
+      type: string
+    - default: '1.0'
+      description: The version of the application
+      name: APP_VERSION
+      type: string
+    - default: was
+      description: The project where you deploy the app
+      name: DEPLOY_PROJECT
+      type: string
+    - default: was-stage
+      description: The project where you promote the app
+      name: PROMOTE_PROJECT
+      type: string
+    - default: 'https://github.com/bpaskin/WAS-Tekton'
+      description: The project where you promote the app
+      name: GIT_URL
+      type: string
+    - default: '2'
+      description: max numnber of pods to scale
+      name: MAX_PODS
+      type: string
+
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: $(params.GIT_URL)
+        - name: subdirectory
+          value: ""
+        - name: deleteExisting
+          value: "true"
+
+    - name: compile-code
+      taskRef:
+        name: maven
+      runAfter:
+        - fetch-repository
+      params:
+        - name: CONTEXT_DIR
+          value: ""
+        - name: GOALS
+          value:
+            - -DskipTests
+            - clean
+            - package
+      workspaces:
+        - name: maven-settings
+          workspace: maven-settings
+        - name: source
+          workspace: shared-workspace
+
+    - name: build-container-image
+      taskRef:
+        name: kaniko
+      runAfter:
+        - compile-code
+      params:
+        - name: IMAGE
+          value: image-registry.openshift-image-registry.svc:5000/$(params.DEPLOY_PROJECT)/$(params.APP_NAME):$(params.APP_VERSION)
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+     
+    - name: deploy-application
+      taskRef:
+        name: was-deploy-app
+      runAfter:
+        - build-container-image
+

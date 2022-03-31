@@ -1,4 +1,4 @@
-FROM ibmcom/websphere-traditional:9.0.0.11
+FROM ibmcom/websphere-traditional:9.0.5.10
 
 #Hardcode password for admin console
 

@@ -1,0 +1,163 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: was-deploy-app 
+  nsamespace: was
+spec:
+  params:
+      - name: APP_NAME
+        description: The name of the application
+        default: 'was-modresorts'
+        type: string
+      - name: APP_VERSION
+        description: The version of the application
+        default: '1.0'
+        type: string
+      - name: DEPLOY_PROJECT
+        description: The project where you deploy the app
+        default: 'was'
+        type: string  
+      - name: MAX_PODS
+        description: max numnber of pods to scale
+        default: '2'
+        type: string  
+
+  steps:
+      - name: create-deployment
+        image: quay.io/openshift/origin-cli:latest
+        workingDir: /workspace/source
+        command: ["/bin/bash", "-c"]
+        args:
+          - |-
+            oc get deployment $(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT)
+            
+            if [ $? -eq 0 ]
+            then
+              echo "Deployment already exists... rolling out new image"
+              oc set image deployment/$(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT) $(inputs.params.APP_NAME)=image-registry.openshift-image-registry.svc:5000/$(inputs.params.DEPLOY_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
+              exit 0
+            fi 
+ 
+            cat <<EOF | oc create -f -
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              name: $(inputs.params.APP_NAME)
+              namespace: $(inputs.params.DEPLOY_PROJECT)
+              labels:
+                app: $(inputs.params.APP_NAME)
+            spec:
+              replicas: 1
+              selector:
+                matchLabels:
+                  app: $(inputs.params.APP_NAME)
+              template:
+                metadata:
+                  labels:
+                    app: $(inputs.params.APP_NAME)
+                spec:
+                  containers:
+                  - name: $(inputs.params.APP_NAME)
+                    image: image-registry.openshift-image-registry.svc:5000/$(inputs.params.DEPLOY_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
+                  ports:
+                    - containerPort: 9080
+                      name: http
+                    - containerPort: 9443
+                      name: https
+                    - containerPort: 9043
+                      name: console
+                  resources:
+                    requests: 
+                      memory: 500Mi
+                      cpu: 0.5
+                    limits:
+                      memory: 500Mi
+                      cpu: 0.5
+                  imagePullPolicy: Always
+            EOF
+
+      - name: create-service
+        image: quay.io/openshift/origin-cli:latest
+        workingDir: /workspace/source
+        command: ["/bin/bash", "-c"]
+        args:
+          - |-
+            oc get service $(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT) > /dev/null 2>&1
+
+            if [ $? -eq 0 ]
+            then
+               echo "service already exists for $(inputs.params.APP_NAME)"
+               exit 0
+            fi
+
+            cat <<EOF | oc create -f -
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: $(inputs.params.APP_NAME)
+              namespace: $(inputs.params.DEPLOY_PROJECT)
+              labels:
+                app: $(inputs.params.APP_NAME)
+            spec:
+              ports:
+              - name: http
+                port: 9080
+                targetPort: http
+                protocol: TCP
+              - name: https
+                port: 9443
+                targetPort: https
+                protocol: TCP
+              - name: console
+                port: 9043
+                targetPort: console
+                protocol: TCP
+              selector:
+                app: $(inputs.params.APP_NAME)
+              type: LoadBalancer
+            EOF
+
+      - name: create-route-ext
+        image: quay.io/openshift/origin-cli:latest
+        workingDir: /workspace/source
+        command: ["/bin/bash", "-c"]
+        args:
+          - |-
+            oc get route -n $(inputs.params.DEPLOY_PROJECT) $(inputs.params.APP_NAME)
+            
+            if [ $? -eq 0 ]
+            then
+               echo "Route exists for $(inputs.params.APP_NAME)"
+               exit 0
+            fi
+
+            cat <<EOF | oc create -f -
+            apiVersion: route.openshift.io/v1
+            kind: Route
+            metadata:
+              name: $(inputs.params.APP_NAME)
+              namespace: $(inputs.params.DEPLOY_PROJECT)
+            spec:
+              to:
+                kind: Service
+                name: $(inputs.params.APP_NAME)
+              port:
+                targetPort: https
+              tls:
+                termination: passthrough
+            EOF
+
+      - name: set-app-autoscale
+        image: quay.io/openshift/origin-cli:latest
+        workingDir: /workspace/source
+        command: ["/bin/bash", "-c"]
+        args:
+          - |-
+            oc get hpa $(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT)
+            if [[ $? -ne 0 ]]
+            then
+                oc autoscale deployment $(inputs.params.APP_NAME) --min 1 --max $(inputs.params.MAX_PODS) --cpu-percent=50 -n $(inputs.params.DEPLOY_PROJECT)
+            else
+                echo "Application autoscale is already configured."
+            fi
+

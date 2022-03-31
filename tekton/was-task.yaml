@@ -102,19 +102,18 @@ spec:
               ports:
               - name: http
                 port: 9080
-                targetPort: http
+                targetPort: 9080
                 protocol: TCP
               - name: https
                 port: 9443
-                targetPort: https
+                targetPort: 9443
                 protocol: TCP
               - name: console
                 port: 9043
-                targetPort: console
+                targetPort: 9043
                 protocol: TCP
               selector:
                 app: $(inputs.params.APP_NAME)
-              type: LoadBalancer
             EOF
 
       - name: create-route-ext

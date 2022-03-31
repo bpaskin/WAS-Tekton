@@ -7,7 +7,7 @@ spec:
 
   params:
   - name: APP_NAME
-    value: 
+    value: was-modresorts
 
   serviceAccountName: pipeline
 

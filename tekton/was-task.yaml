@@ -152,11 +152,24 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            oc get hpa $(params.APP_NAME) -n $(params.DEPLOY_PROJECT)
-            if [[ $? -ne 0 ]]
-            then
-                oc autoscale deployment $(params.APP_NAME) --min 1 --max $(params.MAX_PODS) --cpu-percent=50 -n $(params.DEPLOY_PROJECT)
-            else
-                echo "Application autoscale is already configured."
-            fi
-
+            cat <<EOF | oc apply -f -
+            kind: HorizontalPodAutoscaler
+            apiVersion: autoscaling/v2beta2
+            metadata:
+              name: $(params.APP_NAME)
+              namespace: $(params.DEPLOY_PROJECT)
+            spec:
+              scaleTargetRef:
+                kind: Deployment
+                name: $(params.APP_NAME)
+                apiVersion: apps/v1
+              minReplicas: 1
+              maxReplicas: $(params.MAX_PODS)
+              metrics:
+                - type: Resource
+                  resource:
+                    name: cpu
+                    target:
+                      type: Utilization
+                      averageUtilization: 50
+            EOF

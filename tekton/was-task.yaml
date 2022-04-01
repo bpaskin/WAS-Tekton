@@ -29,12 +29,12 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            oc get deployment $(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT)
+            oc get deployment $(params.APP_NAME) -n $(params.DEPLOY_PROJECT)
             
             if [ $? -eq 0 ]
             then
               echo "Deployment already exists... rolling out new image"
-              oc set image deployment/$(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT) $(inputs.params.APP_NAME)=image-registry.openshift-image-registry.svc:5000/$(inputs.params.DEPLOY_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
+              oc set image deployment/$(params.APP_NAME) -n $(params.DEPLOY_PROJECT) $(params.APP_NAME)=image-registry.openshift-image-registry.svc:5000/$(params.DEPLOY_PROJECT)/$(params.APP_NAME):$(params.APP_VERSION)
               exit 0
             fi 
  
@@ -42,23 +42,23 @@ spec:
             apiVersion: apps/v1
             kind: Deployment
             metadata:
-              name: $(inputs.params.APP_NAME)
-              namespace: $(inputs.params.DEPLOY_PROJECT)
+              name: $(params.APP_NAME)
+              namespace: $(params.DEPLOY_PROJECT)
               labels:
-                app: $(inputs.params.APP_NAME)
+                app: $(params.APP_NAME)
             spec:
               replicas: 1
               selector:
                 matchLabels:
-                  app: $(inputs.params.APP_NAME)
+                  app: $(params.APP_NAME)
               template:
                 metadata:
                   labels:
-                    app: $(inputs.params.APP_NAME)
+                    app: $(params.APP_NAME)
                 spec:
                   containers:
-                  - name: $(inputs.params.APP_NAME)
-                    image: image-registry.openshift-image-registry.svc:5000/$(inputs.params.DEPLOY_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
+                  - name: $(params.APP_NAME)
+                    image: image-registry.openshift-image-registry.svc:5000/$(params.DEPLOY_PROJECT)/$(params.APP_NAME):$(params.APP_VERSION)
                   ports:
                     - containerPort: 9080
                       name: http
@@ -82,11 +82,11 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            oc get service $(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT) > /dev/null 2>&1
+            oc get service $(params.APP_NAME) -n $(params.DEPLOY_PROJECT) > /dev/null 2>&1
 
             if [ $? -eq 0 ]
             then
-               echo "service already exists for $(inputs.params.APP_NAME)"
+               echo "service already exists for $(params.APP_NAME)"
                exit 0
             fi
 
@@ -94,10 +94,10 @@ spec:
             apiVersion: v1
             kind: Service
             metadata:
-              name: $(inputs.params.APP_NAME)
-              namespace: $(inputs.params.DEPLOY_PROJECT)
+              name: $(params.APP_NAME)
+              namespace: $(params.DEPLOY_PROJECT)
               labels:
-                app: $(inputs.params.APP_NAME)
+                app: $(params.APP_NAME)
             spec:
               ports:
               - name: http
@@ -113,7 +113,7 @@ spec:
                 targetPort: 9043
                 protocol: TCP
               selector:
-                app: $(inputs.params.APP_NAME)
+                app: $(params.APP_NAME)
             EOF
 
       - name: create-route-ext
@@ -122,11 +122,11 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            oc get route -n $(inputs.params.DEPLOY_PROJECT) $(inputs.params.APP_NAME)
+            oc get route -n $(params.DEPLOY_PROJECT) $(params.APP_NAME)
             
             if [ $? -eq 0 ]
             then
-               echo "Route exists for $(inputs.params.APP_NAME)"
+               echo "Route exists for $(params.APP_NAME)"
                exit 0
             fi
 
@@ -134,12 +134,12 @@ spec:
             apiVersion: route.openshift.io/v1
             kind: Route
             metadata:
-              name: $(inputs.params.APP_NAME)
-              namespace: $(inputs.params.DEPLOY_PROJECT)
+              name: $(params.APP_NAME)
+              namespace: $(params.DEPLOY_PROJECT)
             spec:
               to:
                 kind: Service
-                name: $(inputs.params.APP_NAME)
+                name: $(params.APP_NAME)
               port:
                 targetPort: https
               tls:
@@ -152,10 +152,10 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            oc get hpa $(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT)
+            oc get hpa $(params.APP_NAME) -n $(params.DEPLOY_PROJECT)
             if [[ $? -ne 0 ]]
             then
-                oc autoscale deployment $(inputs.params.APP_NAME) --min 1 --max $(inputs.params.MAX_PODS) --cpu-percent=50 -n $(inputs.params.DEPLOY_PROJECT)
+                oc autoscale deployment $(params.APP_NAME) --min 1 --max $(params.MAX_PODS) --cpu-percent=50 -n $(params.DEPLOY_PROJECT)
             else
                 echo "Application autoscale is already configured."
             fi

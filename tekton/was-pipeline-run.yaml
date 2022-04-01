@@ -8,6 +8,14 @@ spec:
   params:
   - name: APP_NAME
     value: was-modresorts
+  - name: APP_VERSION
+    value: '1.0'
+  - name: DEPLOY_PROJECT
+    value: 'was'
+  - name: GIT_URL
+    value: 'https://github.com/bpaskin/WAS-Tekton'
+  - name: MAX_PODS
+    value: '3'
 
   serviceAccountName: pipeline
 

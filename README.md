@@ -24,7 +24,7 @@ tkn hub install task kaniko -n <project>
 ```
 4. Add the custom Task
 ```
-oc apply -f tekton/was-task.yaml 
+oc apply -f tekton/was-pipeline-task.yaml 
 ```
 5. Add the PersistentVolumeClaim used to share between tasks.
 ```
@@ -39,3 +39,6 @@ To run the pipeline, a sample Pipeline Run is included
 ```
 oc apply -f tekton/was-pipeline-run.yaml
 ```
+---
+#### Setting up a trigger ####
+

@@ -1,0 +1,17 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: modresorts-triggers-bindings
+  namespace: was
+spec:
+  params:
+  - name: APP_NAME
+    value: was-modresorts
+  - name: APP_VERSION
+    value: $(body.pull_request.head.sha)
+  - name: DEPLOY_PROJECT
+    value: was
+  - name: GIT_URL
+    value: $(body.repository.clone_url)
+  - name: MAX_PODS
+    value: '3'

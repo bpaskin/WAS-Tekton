@@ -42,3 +42,32 @@ oc apply -f tekton/was-pipeline-run.yaml
 ---
 #### Setting up a trigger ####
 
+In a true CI/CD pipeleine developers would not be submitting a Pipeline Run with the necessary data to kick off a pipeline, they would use an EventListener that would take some inputs and start the Pipeline Run.  
+
+1. Setup the necessary ServiceAccount and cluster secuity to receive events and act upon them
+```
+oc apply -f was-triggers-security.yaml
+```
+2. Add the Trigger Template, which is an outline of how to handle the Trigger and what to run, which is similar to the Pipeline Run
+```
+oc apply -f was-triggers-template.yaml
+```
+3. Add the necessary bindings for this specific application.  This contains information to be passed to the Trigger Template
+```
+oc apply -f modresorts-triggers-bindings.yaml
+```
+4. Add the EventListener, which will startup a Pod and service to listen to Events for the trigger.  The Pod name will be prefixed with an `el` with the name of the EventListen.  In this sample it is called `el-was-triggers-eventlistener`.  The Service is given the same name as the Pod.
+```
+oc apply -f was-triggers-eventlistener.yaml
+```
+5. Create a Route so that the Trigger can be called from outside the cluster.
+```
+oc apply -f was-triggers-route.yaml
+```
+To test the Trigger, the Route endpoint can be called with the necessary JSON parameters. 
+```
+ROUTE_HOST=$(oc get route el-was-triggers-listener --template='http://{{.spec.host}}')
+URL=https://github.com/bpaskin/WAS-Tekton.git
+curl -v -H 'X-GitHub-Event: pull_request' -H 'Content-Type: application/json' -d '{ "repository": {"clone_url": "'"${URL}"'"}, "pull_request": {"head": {"sha": "master"}} }' ${ROUTE_HOST}
+```
+If the request is accepted successfully the HTTP response should be either a `201 Created` or `202 Accepted`.

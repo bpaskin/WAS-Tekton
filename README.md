@@ -70,4 +70,4 @@ ROUTE_HOST=$(oc get route el-was-triggers-listener --template='http://{{.spec.ho
 URL=https://github.com/bpaskin/WAS-Tekton.git
 curl -v -H 'X-GitHub-Event: pull_request' -H 'Content-Type: application/json' -d '{ "repository": {"clone_url": "'"${URL}"'"}, "pull_request": {"head": {"sha": "master"}} }' ${ROUTE_HOST}
 ```
-If the request is accepted successfully the HTTP response should be either a `201 Created` or `202 Accepted`.
+If the request is accepted successfully the HTTP response should be either a `201 Created` or `202 Accepted`. 

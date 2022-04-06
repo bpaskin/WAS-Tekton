@@ -8,6 +8,6 @@ spec:
   triggers:
     - name: was-triggers-deploy
       bindings:
-        - ref: modresorts-triggers-bindings
+        - ref: was-triggers-bindings
       template:
         ref: was-triggers-template

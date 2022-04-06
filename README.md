@@ -58,7 +58,7 @@ oc apply -f was-triggers-template.yaml
 ```
 3. Add the necessary bindings for this specific application.  This contains information to be passed to the Trigger Template
 ```
-oc apply -f modresorts-triggers-bindings.yaml
+oc apply -f was-triggers-bindings.yaml
 ```
 4. Add the EventListener, which will startup a Pod and service to listen to Events for the trigger.  The Pod name will be prefixed with an `el` with the name of the EventListen.  In this sample it is called `el-was-triggers-eventlistener`.  The Service is given the same name as the Pod.
 ```
@@ -72,6 +72,6 @@ To test the Trigger, the Route endpoint can be called with the necessary JSON pa
 ```
 ROUTE_HOST=$(oc get route el-was-triggers-listener --template='http://{{.spec.host}}')
 URL=https://github.com/bpaskin/WAS-Tekton.git
-curl -v -H 'X-GitHub-Event: pull_request' -H 'Content-Type: application/json' -d '{ "repository": {"clone_url": "'"${URL}"'"}, "pull_request": {"head": {"sha": "master"}} }' ${ROUTE_HOST}
+curl -v -H 'X-GitHub-Event: pull_request' -H 'Content-Type: application/json' -d '{ "repository": {"clone_url": "'"${URL}"'"}, "pull_request": {"head": {"sha": "master1", "repo": {"name":"WAS-TekTon"}}} }' ${ROUTE_HOST}
 ```
 If the request is accepted successfully the HTTP response should be either a `201 Created` or `202 Accepted`. 

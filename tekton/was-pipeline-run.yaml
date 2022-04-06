@@ -7,9 +7,9 @@ spec:
 
   params:
   - name: APP_NAME
-    value: was-modresorts
+    value: WAS-Tekton
   - name: APP_VERSION
-    value: '1.1'
+    value: '1.2'
   - name: DEPLOY_PROJECT
     value: 'was'
   - name: GIT_URL

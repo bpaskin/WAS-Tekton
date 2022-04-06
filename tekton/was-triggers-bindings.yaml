@@ -1,12 +1,12 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: modresorts-triggers-bindings
+  name: was-triggers-bindings
   namespace: was
 spec:
   params:
   - name: APP_NAME
-    value: was-modresorts
+    value: $(body.pull_request.head.repo.name)
   - name: APP_VERSION
     value: $(body.pull_request.head.sha)
   - name: DEPLOY_PROJECT

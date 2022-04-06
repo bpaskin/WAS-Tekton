@@ -75,3 +75,19 @@ URL=https://github.com/bpaskin/WAS-Tekton.git
 curl -v -H 'X-GitHub-Event: pull_request' -H 'Content-Type: application/json' -d '{ "repository": {"clone_url": "'"${URL}"'"}, "pull_request": {"head": {"sha": "master1", "repo": {"name":"WAS-TekTon"}}} }' ${ROUTE_HOST}
 ```
 If the request is accepted successfully the HTTP response should be either a `201 Created` or `202 Accepted`. 
+
+#### Using a Webhook to start a trigger ####
+
+The Pipeline can be started when a GitHub Pull is done.  This will send a message to the Event Listener endpoint with some data.  The repository name, SHA of the pull request and URL of the repository will be used in the pipeline.
+
+1. Go to the GitHub repository page in the web browser.
+2. Click the Settings tab.
+3. In the navigation pane, click Hooks.
+4. Click Add Webhook.
+5. In the Payload URL field, paste the webhook URL (output from the `oc get route el-was-triggers-listener --template='http://{{.spec.host}}'` command
+6. In the Content type field, select JSON.
+7. Leave the Secret field empty
+8. Below Which events would you like to trigger this webhook?, select Let me select individual events. In the options displayed, ensure that the Pull event is selected only.
+9. Ensure that the Active check box is selected. This option keeps the webhook enabled and sends notifications whenever an event is triggered.
+10. Click Add webhook to complete the configuration of the webhook in GitHub Enterprise.
+

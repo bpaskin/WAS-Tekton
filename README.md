@@ -22,15 +22,19 @@ tkn hub install task git-clone -n <project>
 tkn hub install task maven -n <project>
 tkn hub install task kaniko -n <project>
 ```
-4. Add the custom Task
+4. Add task to format the app name (make lowercase, remove spaces)
+```
+oc apply -f tekton/was-pipeline-task-appname.yaml 
+```
+5. Add the custom Task
 ```
 oc apply -f tekton/was-pipeline-task.yaml 
 ```
-5. Add the PersistentVolumeClaim used to share between tasks.
+6. Add the PersistentVolumeClaim used to share between tasks.
 ```
 oc apply -f tekton/was-pipeline-pvc.yaml
 ```
-6. Install the Pipeline
+7. Install the Pipeline
 ```
 oc apply -f tekton/was-pipeline.yaml
 ```

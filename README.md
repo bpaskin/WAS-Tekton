@@ -2,10 +2,11 @@
 
 This is a sample pipeline that can be used for deploying an application to a tWAS container and deploying it to OCP.  The pipeline will do the following:
 
-1. Download code from a [Git](https://github.com) repository
-2. Compile the code using [Maven](https://maven.apache.org)
-3. Use the [Dockerfile](https://docs.docker.com/engine/reference/builder/) to build a new tWAS image and store it in the OCP [ImageStreams](https://docs.openshift.com/container-platform/4.10/openshift_images/image-streams-manage.html) repository
-4. Create a [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/), [Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/), [Service](https://kubernetes.io/docs/concepts/services-networking/service/) and [Route](https://docs.openshift.com/container-platform/4.10/networking/routes/route-configuration.html).	
+1. Update the name of the project to lowercase and remove spaces.
+2. Download code from a [Git](https://github.com) repository
+3. Compile the code using [Maven](https://maven.apache.org)
+4. Use the [Dockerfile](https://docs.docker.com/engine/reference/builder/) to build a new tWAS image and store it in the OCP [ImageStreams](https://docs.openshift.com/container-platform/4.10/openshift_images/image-streams-manage.html) repository
+5. Create a [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/), [Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/), [Service](https://kubernetes.io/docs/concepts/services-networking/service/) and [Route](https://docs.openshift.com/container-platform/4.10/networking/routes/route-configuration.html).	
 
 The first 3 items are done with Tasks from the [Tekton Hub](https://hub.tekton.dev).
 

@@ -2,7 +2,6 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: was-triggers-bindings
-  namespace: was
 spec:
   params:
   - name: APP_NAME

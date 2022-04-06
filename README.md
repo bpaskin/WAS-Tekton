@@ -13,36 +13,40 @@ The first 3 items are done with Tasks from the [Tekton Hub](https://hub.tekton.d
 The [OpenShift](https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/) and [Tekton](https://github.com/tektoncd/cli/releases) CLIs are needed to run commands and setup the pipeline.
 
 1. Login to your OCP cluster
-2. Install the Tekton Pipeline
+2. Create a project (namespace) for the pipelines, if necessary
 ```
-oc apply -f tekton/tekton-pipelines-install.yaml
+oc new-project <project>
 ```
-3. Install the necessary Tekton Tasks from the Tekton Hub
+3. Install the Tekton Pipeline
+```
+oc apply -f tekton/tekton-pipelines-install.yaml -n <project>
+```
+4. Install the necessary Tekton Tasks from the Tekton Hub
 ```
 tkn hub install task git-clone -n <project>
 tkn hub install task maven -n <project>
 tkn hub install task kaniko -n <project>
 ```
-4. Add task to format the app name (make lowercase, remove spaces)
+5. Add task to format the app name (make lowercase, remove spaces)
 ```
-oc apply -f tekton/was-pipeline-task-appname.yaml 
+oc apply -f tekton/was-pipeline-task-appname.yaml -n <project>
 ```
-5. Add the custom Task
+6. Add the custom Task
 ```
-oc apply -f tekton/was-pipeline-task.yaml 
+oc apply -f tekton/was-pipeline-task.yaml -n <project>
 ```
-6. Add the PersistentVolumeClaim used to share between tasks.
+7. Add the PersistentVolumeClaim used to share between tasks.
 ```
-oc apply -f tekton/was-pipeline-pvc.yaml
+oc apply -f tekton/was-pipeline-pvc.yaml -n <project>
 ```
-7. Install the Pipeline
+8. Install the Pipeline
 ```
-oc apply -f tekton/was-pipeline.yaml
+oc apply -f tekton/was-pipeline.yaml -n <project>
 ```
 
 To run the pipeline, a sample Pipeline Run is included
 ```
-oc apply -f tekton/was-pipeline-run.yaml
+oc create -f tekton/was-pipeline-run.yaml -n <project>
 ```
 ---
 #### Setting up a trigger ####
@@ -51,27 +55,27 @@ In a true CI/CD pipeleine developers would not be submitting a Pipeline Run with
 
 1. Setup the necessary ServiceAccount and cluster secuity to receive events and act upon them
 ```
-oc apply -f was-triggers-security.yaml
+oc apply -f was-triggers-security.yaml -n <project>
 ```
 2. Add the Trigger Template, which is an outline of how to handle the Trigger and what to run, which is similar to the Pipeline Run
 ```
-oc apply -f was-triggers-template.yaml
+oc apply -f was-triggers-template.yaml -n <project>
 ```
 3. Add the necessary bindings for this specific application.  This contains information to be passed to the Trigger Template
 ```
-oc apply -f was-triggers-bindings.yaml
+oc apply -f was-triggers-bindings.yaml -n <project>
 ```
 4. Add the EventListener, which will startup a Pod and service to listen to Events for the trigger.  The Pod name will be prefixed with an `el` with the name of the EventListen.  In this sample it is called `el-was-triggers-eventlistener`.  The Service is given the same name as the Pod.
 ```
-oc apply -f was-triggers-eventlistener.yaml
+oc apply -f was-triggers-eventlistener.yaml -n <project>
 ```
 5. Create a Route so that the Trigger can be called from outside the cluster.
 ```
-oc apply -f was-triggers-route.yaml
+oc apply -f was-triggers-route.yaml -n <project>
 ```
 To test the Trigger, the Route endpoint can be called with the necessary JSON parameters. 
 ```
-ROUTE_HOST=$(oc get route el-was-triggers-listener --template='http://{{.spec.host}}')
+ROUTE_HOST=$(oc get route el-was-triggers-listener -n <project> --template='http://{{.spec.host}}')
 URL=https://github.com/bpaskin/WAS-Tekton.git
 curl -v -H 'X-GitHub-Event: pull_request' -H 'Content-Type: application/json' -d '{ "repository": {"clone_url": "'"${URL}"'"}, "pull_request": {"head": {"sha": "master1", "repo": {"name":"WAS-TekTon"}}} }' ${ROUTE_HOST}
 ```
@@ -85,7 +89,7 @@ The Pipeline can be started when a GitHub Pull is done.  This will send a messag
 2. Click the Settings tab.
 3. In the navigation pane, click Hooks.
 4. Click Add Webhook.
-5. In the Payload URL field, paste the webhook URL (output from the `oc get route el-was-triggers-listener --template='http://{{.spec.host}}'` command
+5. In the Payload URL field, paste the webhook URL (output from the `oc get route el-was-triggers-listener -n <project> --template='http://{{.spec.host}}'` command
 6. In the Content type field, select JSON.
 7. Leave the Secret field empty
 8. Below Which events would you like to trigger this webhook?, select Let me select individual events. In the options displayed, ensure that the Pull event is selected only.

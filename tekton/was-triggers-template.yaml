@@ -2,7 +2,6 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: was-triggers-template
-  namespace: was
 spec:
 
   params:

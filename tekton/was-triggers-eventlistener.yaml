@@ -2,7 +2,6 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: was-triggers-eventlistener
-  namespace: was
 spec:
   serviceAccountName: was-tekton-triggers
   triggers:

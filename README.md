@@ -76,7 +76,7 @@ curl -v -H 'X-GitHub-Event: pull_request' -H 'Content-Type: application/json' -d
 ```
 If the request is accepted successfully the HTTP response should be either a `201 Created` or `202 Accepted`. 
 
-#### Using a Webhook to start a trigger ####
+#### Using a Webhook to trigger a build ####
 
 The Pipeline can be started when a GitHub Pull is done.  This will send a message to the Event Listener endpoint with some data.  The repository name, SHA of the pull request and URL of the repository will be used in the pipeline.
 

@@ -1,5 +1,7 @@
 ### Tekton Pipeline for deploy WebSphere Application Server Apps ###
 
+Update 2022-04-12 - Added Blue/Green Deployment.  There is always 1 `Route`, 1 `Service`, but the `Service` will be patched to the correct `Deployment` and `Pods`.  There will be a maximum of 2 `Deployments`, which the `Service` will point to the new `Deployment`.  The old `Deployment` will continue to be active so the Service just needs the `Pod Selector` updated to rollback.
+
 This is a sample pipeline that can be used for deploying an application to a tWAS container and deploying it to OCP.  The pipeline will do the following:
 
 1. Update the name of the project to lowercase and remove spaces.
@@ -96,3 +98,4 @@ The Pipeline can be started when a GitHub Pull is done.  This will send a messag
 9. Ensure that the Active check box is selected. This option keeps the webhook enabled and sends notifications whenever an event is triggered.
 10. Click Add webhook to complete the configuration of the webhook in GitHub Enterprise.
 
+Helpful while testing `Tasks`: `tkn task start was-deploy-app --showlog`

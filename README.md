@@ -1,6 +1,10 @@
 ### Tekton Pipeline for deploy WebSphere Application Server Apps ###
 
+--- 
+
 Update 2022-04-12 - Added Blue/Green Deployment.  There is always 1 `Route`, 1 `Service`, but the `Service` will be patched to the correct `Deployment` and `Pods`.  There will be a maximum of 2 `Deployments`, which the `Service` will point to the new `Deployment`.  The old `Deployment` will continue to be active so the Service just needs the `Pod Selector` updated to rollback.
+
+---
 
 This is a sample pipeline that can be used for deploying an application to a tWAS container and deploying it to OCP.  The pipeline will do the following:
 

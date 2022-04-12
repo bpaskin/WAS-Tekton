@@ -102,6 +102,10 @@ spec:
           value: $(params.DEPLOY_PROJECT)
         - name: MAX_PODS
           value: $(params.MAX_PODS)
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+
   results:
     - name: APP_NAME_CONFORM
       value: $(tasks.validate-appname.results.APP_NAME_CONFORM)

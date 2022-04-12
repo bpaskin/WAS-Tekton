@@ -7,7 +7,7 @@ spec:
   params:
       - name: APP_NAME
         description: The name of the application
-        default: 'was-modresorts'
+        default: 'was-tekton'
         type: string
       - name: APP_VERSION
         description: The version of the application
@@ -22,6 +22,11 @@ spec:
         default: '2'
         type: string  
 
+  workspaces:
+  - name: output
+    description: name of the selector to be used
+    mountPath: /was/selector
+
   steps:
       - name: create-deployment
         image: quay.io/openshift/origin-cli:latest
@@ -29,12 +34,31 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            oc get deployment $(params.APP_NAME) -n $(params.DEPLOY_PROJECT)
+            oc get service $(params.APP_NAME) -n $(params.DEPLOY_PROJECT) > /dev/null 2>/dev/null
+           
+            if [  $? -eq 0 ]
+            then
+              SELECTOR=`oc get service $(params.APP_NAME) -n $(params.DEPLOY_PROJECT) -o jsonpath='{.spec.selector.app}'` 
+            else
+              SELECTOR="$(params.APP_NAME)-1"
+            fi
+            
+            if [[ $SELECTOR == $(params.APP_NAME)-0 ]]
+            then
+               SELECTOR="$(params.APP_NAME)-1"
+            else
+               SELECTOR="$(params.APP_NAME)-0"
+            fi
+            
+            echo $SELECTOR > $(workspaces.output.path)/selector
+            echo "selector = $SELECTOR"
+            
+            oc get deployment $SELECTOR -n $(params.DEPLOY_PROJECT) > /dev/null 2>&1
             
             if [ $? -eq 0 ]
             then
               echo "Deployment already exists... rolling out new image"
-              oc set image deployment/$(params.APP_NAME) -n $(params.DEPLOY_PROJECT) $(params.APP_NAME)=image-registry.openshift-image-registry.svc:5000/$(params.DEPLOY_PROJECT)/$(params.APP_NAME):$(params.APP_VERSION)
+              oc set image deployment/$SELECTOR -n $(params.DEPLOY_PROJECT) $SELECTOR=image-registry.openshift-image-registry.svc:5000/$(params.DEPLOY_PROJECT)/$(params.APP_NAME):$(params.APP_VERSION)
               exit 0
             fi 
  
@@ -42,22 +66,22 @@ spec:
             apiVersion: apps/v1
             kind: Deployment
             metadata:
-              name: $(params.APP_NAME)
+              name: $SELECTOR
               namespace: $(params.DEPLOY_PROJECT)
               labels:
-                app: $(params.APP_NAME)
+                app: $SELECTOR
             spec:
               replicas: 1
               selector:
                 matchLabels:
-                  app: $(params.APP_NAME)
+                  app: $SELECTOR
               template:
                 metadata:
                   labels:
-                    app: $(params.APP_NAME)
+                    app: $SELECTOR
                 spec:
                   containers:
-                  - name: $(params.APP_NAME)
+                  - name: $SELECTOR
                     image: image-registry.openshift-image-registry.svc:5000/$(params.DEPLOY_PROJECT)/$(params.APP_NAME):$(params.APP_VERSION)
                   ports:
                     - containerPort: 9080
@@ -82,12 +106,16 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            oc get service $(params.APP_NAME) -n $(params.DEPLOY_PROJECT) > /dev/null 2>&1
+            SELECTOR=`cat $(workspaces.output.path)/selector`
+            echo "selector = $SELECTOR"
 
+            oc get service $(params.APP_NAME) -n $(params.DEPLOY_PROJECT) > /dev/null 2>&1
+            
             if [ $? -eq 0 ]
             then
-               echo "service already exists for $(params.APP_NAME)"
-               exit 0
+              echo "service exists, patching"
+              oc patch service was-tekton -p '{"spec": {"selector": {"app":"'$SELECTOR'"}}}'
+              exit 0
             fi
 
             cat <<EOF | oc create -f -
@@ -113,7 +141,7 @@ spec:
                 targetPort: 9043
                 protocol: TCP
               selector:
-                app: $(params.APP_NAME)
+                app: $SELECTOR
             EOF
 
       - name: create-route-ext
@@ -152,16 +180,19 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
+            SELECTOR=`cat $(workspaces.output.path)/selector`
+            echo "selector = $SELECTOR"
+
             cat <<EOF | oc apply -f -
             kind: HorizontalPodAutoscaler
             apiVersion: autoscaling/v2beta2
             metadata:
-              name: $(params.APP_NAME)
+              name: $SELECTOR
               namespace: $(params.DEPLOY_PROJECT)
             spec:
               scaleTargetRef:
                 kind: Deployment
-                name: $(params.APP_NAME)
+                name: $SELECTOR
                 apiVersion: apps/v1
               minReplicas: 1
               maxReplicas: $(params.MAX_PODS)

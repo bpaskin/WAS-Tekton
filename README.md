@@ -98,7 +98,7 @@ The Pipeline can be started when a GitHub Pull is done.  This will send a messag
 5. In the Payload URL field, paste the webhook URL (output from the `oc get route el-was-triggers-listener -n <project> --template='http://{{.spec.host}}'` command
 6. In the Content type field, select JSON.
 7. Leave the Secret field empty
-8. Below Which events would you like to trigger this webhook?, select Let me select individual events. In the options displayed, ensure that the Pull event is selected only.
+8. In the options displayed, ensure that the Pull event is selected only.
 9. Ensure that the Active check box is selected. This option keeps the webhook enabled and sends notifications whenever an event is triggered.
 10. Click Add webhook to complete the configuration of the webhook in GitHub Enterprise.
 

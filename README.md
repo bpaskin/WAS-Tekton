@@ -23,7 +23,7 @@ The [OpenShift](https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/
 ```
 oc new-project <project>
 ```
-3. Install the Tekton Pipeline
+3. Install the Tekton Pipeline.   
 ```
 oc apply -f tekton/tekton-pipelines-install.yaml
 ```
@@ -59,7 +59,7 @@ oc create -f tekton/was-pipeline-run.yaml -n <project>
 
 In a true CI/CD pipeleine developers would not be submitting a Pipeline Run with the necessary data to kick off a pipeline, they would use an EventListener that would take some inputs and start the Pipeline Run.  
 
-1. Setup the necessary ServiceAccount and cluster secuity to receive events and act upon them
+1. Setup the necessary ServiceAccount and cluster secuity to receive events and act upon them.  The file must be updated with the namespace used for the Pipeline for the security.  Update `CHANGE_ME` with the appropriate namespace.
 ```
 oc apply -f was-triggers-security.yaml -n <project>
 ```

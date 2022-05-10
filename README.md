@@ -25,7 +25,7 @@ oc new-project <project>
 ```
 3. Install the Tekton Pipeline
 ```
-oc apply -f tekton/tekton-pipelines-install.yaml -n <project>
+oc apply -f tekton/tekton-pipelines-install.yaml
 ```
 4. Install the necessary Tekton Tasks from the Tekton Hub
 ```

@@ -57,7 +57,7 @@ oc create -f tekton/was-pipeline-run.yaml -n <project>
 ---
 #### Setting up a trigger ####
 
-In a true CI/CD pipeleine developers would not be submitting a Pipeline Run with the necessary data to kick off a pipeline, they would use an EventListener that would take some inputs and start the Pipeline Run.  
+In a true CI/CD pipeline developers would not be submitting a Pipeline Run with the necessary data to kick off a pipeline, they would use an EventListener that would take some inputs and start the Pipeline Run.  
 
 1. Setup the necessary ServiceAccount and cluster secuity to receive events and act upon them.  The file must be updated with the namespace used for the Pipeline for the security.  Update `CHANGE_ME` with the appropriate namespace.
 ```

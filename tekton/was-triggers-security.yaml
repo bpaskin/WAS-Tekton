@@ -10,7 +10,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: was-tekton-triggers
-  namespce: CHANGE_ME
+  namespace: was
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

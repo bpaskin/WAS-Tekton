@@ -1,0 +1,20 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ibmcloud-cli
+  labels:
+    app: ibmcloud-cli
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/bpaskin/WAS-Tekton
+    contextDir: tekton-ibmcloud-obs
+  strategy:
+    type: Docker                      
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ibmcloud-cli

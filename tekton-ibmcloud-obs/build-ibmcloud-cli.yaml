@@ -1,3 +1,12 @@
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: ibmcloud-cli
+spec:
+  lookupPolicy:
+    local: false
+---
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
@@ -17,4 +26,5 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: ibmcloud-cli
+      name: ibmcloud-cli:latest
+...

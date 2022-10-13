@@ -26,7 +26,7 @@ spec:
        default: us-south
 
   steps:
-     - name: login and download
+     - name: login-and-download
        image: image-registry.openshift-image-registry.svc:5000/was/ibmcloud-cli:latest
        resources: {}
        workingDir: /workspace/source

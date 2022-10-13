@@ -35,13 +35,15 @@ spec:
           
           set -x 
 
+          rm -Rf *
+
           export IBMCLOUD_API_KEY=$(params.APIKEY)
 
           ibmcloud login -g "$(params.GROUP_NAME)" -r "$(params.REGION_NAME)"
 
           ibmcloud cos object-get --bucket $(params.BUCKET_NAME) --key $(params.FILE_NAME) $(params.FILE_NAME)
 
-          unzip $(params.FILE_NAME)
+          unzip -u $(params.FILE_NAME)
       
   workspaces:
      - name: output

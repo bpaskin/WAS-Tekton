@@ -1,6 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
-name: download-ibmcloud-obs
+metadata:
+  name: download-ibmcloud-obs
 spec:
   params:
      - name: APIKEY

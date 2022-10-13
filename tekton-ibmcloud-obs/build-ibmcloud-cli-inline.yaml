@@ -1,0 +1,38 @@
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: ibmcloud-cli
+spec:
+  lookupPolicy:
+    local: false
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ibmcloud-cli
+  labels:
+    app: ibmcloud-cli
+spec:
+  source:
+    dockfile: |
+       FROM alpine:latest
+
+       RUN apk update  \
+           && apk add curl bash unzip
+
+       RUN curl -fsSL https://clis.cloud.ibm.com/install/linux | sh \
+           && ibmcloud -v \
+           && ibmcloud plugin install cloud-object-storage \
+           && ibmcloud plugin list
+
+       CMD ["/bin/bash"]
+  strategy:
+    type: Docker                      
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ibmcloud-cli:latest
+...

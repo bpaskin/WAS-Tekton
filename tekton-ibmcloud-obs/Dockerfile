@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 RUN apk update  \
-    && apk add curl bash 
+    && apk add curl bash unzip
 
 RUN curl -fsSL https://clis.cloud.ibm.com/install/linux | sh \
     && ibmcloud -v \

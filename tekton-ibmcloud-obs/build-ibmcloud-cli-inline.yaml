@@ -15,7 +15,7 @@ metadata:
     app: ibmcloud-cli
 spec:
   source:
-    dockerfile: |
+    dockerfile: |     
        FROM alpine:latest
 
        RUN apk update  \

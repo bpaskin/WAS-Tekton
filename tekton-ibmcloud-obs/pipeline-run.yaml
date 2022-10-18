@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  namespace: was
+  generateName: was-run-
+spec:
+  params:
+    - name: APP_NAME
+      value: ulm
+    - name: APP_VERSION
+      value: '1.0'
+    - name: DEPLOY_PROJECT
+      value: was
+    - name: MAX_PODS
+      value: '2'
+    - name: APIKEY
+      value: MTVBCOUg3uS8yWFq56sph-AxVzBBQsVJUSQJM7diYXLN
+    - name: BUCKET_NAME
+      value: ulm10122022
+    - name: FILE_NAME
+      value: ULM.zip
+    - name: GROUP_NAME
+      value: Cloud Satellite Test
+    - name: REGION_NAME
+      value: us-south
+  pipelineRef:
+    name: was-pipeline-obs
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: was-pipeline-pvc

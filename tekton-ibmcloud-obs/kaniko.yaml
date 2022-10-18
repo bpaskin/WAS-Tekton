@@ -1,0 +1,66 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  namespace: was
+  name: kaniko
+spec:
+  description: >-
+    This Task builds a simple Dockerfile with kaniko and pushes to a registry.
+    This Task stores the image name and digest as results, allowing Tekton
+    Chains to pick up that an image was built & sign it.
+  params:
+    - description: Name (reference) of the image to build.
+      name: IMAGE
+      type: string
+    - default: ./Dockerfile
+      description: Path to the Dockerfile to build.
+      name: DOCKERFILE
+      type: string
+    - default: ./
+      description: The build context used by Kaniko.
+      name: CONTEXT
+      type: string
+    - default: []
+      name: EXTRA_ARGS
+      type: array
+    - default: >-
+        quay.io/bpaskin_us/executor:latest
+      description: The image on which builds will run (default is v1.5.1)
+      name: BUILDER_IMAGE
+      type: string
+  results:
+    - description: Digest of the image just built.
+      name: IMAGE_DIGEST
+      type: string
+    - description: URL of the image just built.
+      name: IMAGE_URL
+      type: string
+  steps:
+    - args:
+        - $(params.EXTRA_ARGS)
+        - '--dockerfile=$(params.DOCKERFILE)'
+        - '--context=$(workspaces.source.path)/$(params.CONTEXT)'
+        - '--destination=$(params.IMAGE)'
+        - '--digest-file=$(results.IMAGE_DIGEST.path)'
+      image: $(params.BUILDER_IMAGE)
+      name: build-and-push
+      resources: {}
+      securityContext:
+        runAsUser: 0
+      workingDir: $(workspaces.source.path)
+    - image: >-
+        quay.io/bpaskin_us/bash:latest
+      name: write-url
+      resources: {}
+      script: |
+        set -e
+        image="$(params.IMAGE)"
+        echo -n "${image}" | tee "$(results.IMAGE_URL.path)"
+  workspaces:
+    - description: Holds the context and Dockerfile
+      name: source
+    - description: Includes a docker `config.json`
+      mountPath: /kaniko/.docker
+      name: dockerconfig
+      optional: true
+

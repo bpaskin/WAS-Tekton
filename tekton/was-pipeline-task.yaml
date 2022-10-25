@@ -114,7 +114,7 @@ spec:
             if [ $? -eq 0 ]
             then
               echo "service exists, patching"
-              oc patch service was-tekton -p '{"spec": {"selector": {"app":"'$SELECTOR'"}}}'
+              oc patch service $(params.APP_NAME) -p '{"spec": {"selector": {"app":"'$SELECTOR'"}}}'
               exit 0
             fi
 

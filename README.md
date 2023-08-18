@@ -103,4 +103,23 @@ The Pipeline can be started when a GitHub Pull is done.  This will send a messag
 10. Click Add webhook to complete the configuration of the webhook in GitHub Enterprise.
 
 Helpful while testing `Tasks`: `tkn task start was-deploy-app --showlog`
- 
+
+ ---
+
+ To build a container without OCP:
+ ```
+ docker/podman build -t modresorts .
+```
+Run the container exposing the admin and app ports (9443 is the internal app port)
+```
+docker/podman run -d -p 19443:9443 -p 9043:9043 --name modresorts modresorts
+```
+To access the application
+```
+https://host:19443/
+```
+To access the admin console:
+```
+https://host:9043/admin
+```
+userid is `wsadmin`, password is `passw0rd`

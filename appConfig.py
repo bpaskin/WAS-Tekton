@@ -3,4 +3,7 @@ Node=AdminConfig.getid('/Cell:' + AdminControl.getCell() + '/Node:' + AdminContr
 Cell=AdminConfig.getid('/Cell:' + AdminControl.getCell() + '/')
 NodeName=AdminControl.getNode()
 
+VH=AdminConfig.getid('/VirtualHost:default_host/')
+AdminConfig.create('HostAlias', VH, '[[hostname "*"][port "19443"]]')
+
 AdminConfig.save()

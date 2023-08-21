@@ -22,8 +22,8 @@
     <Property Name="PostSizeLimit" Value="-1"/>
     <Property Name="PostBufferSize" Value="0"/>
     <Property Name="PluginInstallRoot" Value="/opt/IBM/WebSphere/Plugins/"/>
-    <Property Name="Keyfile" Value="/opt/IBM/WebSphere/Plugins90/config/containe/plugin-key.kdb"/>
-    <Property Name="Stashfile" Value="/opt/IBM/WebSphere/Plugins90/config/containe/plugin-key.sth"/>
+    <Property Name="Keyfile" Value="/opt/IBM/WebSphere/Plugins90/config/container/plugin-key.kdb"/>
+    <Property Name="Stashfile" Value="/opt/IBM/WebSphere/Plugins90/config/container/plugin-key.sth"/>
     <RequestMetrics armEnabled="false" loggingEnabled="false"
         rmEnabled="false" traceLevel="HOPS">
         <filters enable="false" type="URI">

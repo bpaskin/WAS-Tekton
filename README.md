@@ -112,14 +112,17 @@ Helpful while testing `Tasks`: `tkn task start was-deploy-app --showlog`
 ```
 Run the container exposing the admin and app ports (9443 is the internal app port)
 ```
-docker/podman run -d -p 19443:9443 -p 9043:9043 --name modresorts modresorts
+podman run -d -p 19443:9443 -p 9043:9043 -p 19080:9080 --name modresorts1 modresorts
+podman run -d -p 19444:9443 -p 9044:9043 -p 19081:9080 --name modresorts2 modresorts
 ```
 To access the application
 ```
 https://host:19443/
+https://host:19444/
 ```
 To access the admin console:
 ```
 https://host:9043/admin
+https://host:9044/admin
 ```
 userid is `wsadmin`, password is `passw0rd`
